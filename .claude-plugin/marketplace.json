@@ -1,0 +1,15 @@
+{
+  "name": "leadsman",
+  "owner": {
+    "name": "Salman Ahmad",
+    "url": "https://github.com/kreativlogics"
+  },
+  "description": "leadsman: check a ticket against the code before anyone builds it.",
+  "plugins": [
+    {
+      "name": "leadsman",
+      "source": "./plugins/leadsman",
+      "description": "Ticket readiness checked against the code: file:line evidence, one decision, no tracker writes."
+    }
+  ]
+}
