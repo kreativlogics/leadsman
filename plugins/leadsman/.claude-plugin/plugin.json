@@ -1,0 +1,40 @@
+{
+  "name": "leadsman",
+  "version": "0.1.0",
+  "description": "Checks whether a ticket is ready to build, against the code. Every claim cites file:line or is marked unverified, a script confirms each citation, and the result is one decision: Ready, Fix then ready (rewritten text), Ask (drafted question), Duplicate, Close or Park. Duplicate and Close must survive a disproof. Read-only: never writes to a tracker. Stdlib Python, no dependencies.",
+  "author": {
+    "name": "KreativLogics",
+    "url": "https://github.com/kreativlogics"
+  },
+  "homepage": "https://github.com/kreativlogics/leadsman",
+  "repository": "https://github.com/kreativlogics/leadsman",
+  "license": "MIT",
+  "keywords": [
+    "tickets",
+    "backlog",
+    "grooming",
+    "readiness",
+    "issues",
+    "code-evidence",
+    "planning"
+  ],
+  "userConfig": {
+    "preset": {
+      "type": "string",
+      "title": "Preset",
+      "description": "solo: no GitHub overlap search, base stale after 14 days. standard: overlap search on, stale after 7 days. strict: clear, testable and safe also need a quote (size and overlap stays a judgement), stale after 1 day. A project file can only make this stricter.",
+      "options": [
+        "solo",
+        "standard",
+        "strict"
+      ],
+      "default": "standard"
+    }
+  },
+  "network": {
+    "hosts": [
+      "github.com"
+    ]
+  },
+  "icon": ".claude-plugin/icon.png"
+}
