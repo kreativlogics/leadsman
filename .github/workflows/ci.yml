@@ -4,6 +4,8 @@ on:
   push:
     branches: [master]
   pull_request:
+  # Run by hand from the Actions tab to add the macOS jobs (e.g. before a release).
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -20,14 +22,10 @@ jobs:
         # ubuntu-latest is 26.04, which has no Python 3.9 builds; 24.04 does.
         os: [ubuntu-24.04]
         python: ["3.9", "3.10", "3.11", "3.12", "3.13"]
-        # macOS runners are scarce: the oldest and newest Python only. The 3.9 job uses macOS's
-        # own /usr/bin/python3 (3.9, what users run); setup-python has no working 3.9 on arm64.
-        include:
-          - os: macos-latest
-            python: "3.9"
-            system: true
-          - os: macos-latest
-            python: "3.13"
+        # macOS only on a manual run: hosted macOS runners are often unavailable, and a job that
+        # never gets one fails the whole run. The 3.9 job uses macOS's own /usr/bin/python3
+        # (3.9, what users run); setup-python has no working 3.9 on arm64.
+        include: ${{ fromJSON(github.event_name == 'workflow_dispatch' && '[{"os":"macos-latest","python":"3.9","system":true},{"os":"macos-latest","python":"3.13"}]' || '[]') }}
     runs-on: ${{ matrix.os }}
     timeout-minutes: 20
     steps:
