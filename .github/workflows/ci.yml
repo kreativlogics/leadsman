@@ -8,19 +8,34 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   test:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-latest]
+        # ubuntu-latest is 26.04, which has no Python 3.9 builds; 24.04 does.
+        os: [ubuntu-24.04]
         python: ["3.9", "3.10", "3.11", "3.12", "3.13"]
+        # macOS runners are scarce: the oldest and newest Python only. macOS ships 3.9 as its
+        # own python3, and 3.9 has no arm64 build for setup-python, so that job runs x64 (Rosetta).
+        include:
+          - os: macos-latest
+            python: "3.9"
+            arch: x64
+          - os: macos-latest
+            python: "3.13"
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: ${{ matrix.python }}
+          architecture: ${{ matrix.arch }}
       - name: Unit tests
         working-directory: tests
         run: python -m unittest discover -v
