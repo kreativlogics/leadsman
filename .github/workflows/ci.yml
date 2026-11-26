@@ -8,19 +8,40 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   test:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-latest]
+        # ubuntu-latest is 26.04, which has no Python 3.9 builds; 24.04 does.
+        os: [ubuntu-24.04]
         python: ["3.9", "3.10", "3.11", "3.12", "3.13"]
+        # macOS runners are scarce: the oldest and newest Python only. The 3.9 job uses macOS's
+        # own /usr/bin/python3 (3.9, what users run); setup-python has no working 3.9 on arm64.
+        include:
+          - os: macos-latest
+            python: "3.9"
+            system: true
+          - os: macos-latest
+            python: "3.13"
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        if: ${{ !matrix.system }}
         with:
           python-version: ${{ matrix.python }}
+      - name: Use the system Python
+        if: ${{ matrix.system }}
+        run: |
+          /usr/bin/python3 -m venv "$RUNNER_TEMP/py"
+          echo "$RUNNER_TEMP/py/bin" >> "$GITHUB_PATH"
+          "$RUNNER_TEMP/py/bin/python" -c 'import sys; print(sys.version); assert sys.version_info[:2] == (3, 9)'
       - name: Unit tests
         working-directory: tests
         run: python -m unittest discover -v
